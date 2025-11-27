@@ -3,12 +3,39 @@ import 'package:w8_practice/pages/EXERCISE-4/model/jokes_model.dart';
 
 Color appColor = Colors.green[300] as Color;
 
-class Exercise4 extends StatelessWidget {
+class Exercise4 extends StatefulWidget {
   List<JokesModel> jokesData;
   Exercise4({super.key, required this.jokesData});
 
+  @override
+  State<Exercise4> createState() => _Exercise4State();
+}
+
+class _Exercise4State extends State<Exercise4> {
   List<Widget> _getJokes() {
-    return jokesData.map((joke) => FavoriteCard(joke: joke)).toList();
+    return widget.jokesData
+        .map(
+          (joke) => FavoriteCard(
+            joke: joke,
+            onFavoriteSelected: () => setIsFavorite(joke),
+          ),
+        )
+        .toList();
+  }
+
+  JokesModel? isSelectedFavorite;
+
+  void setIsFavorite(JokesModel joke) {
+    setState(() {
+      // Reset All Jokes
+      for (var j in widget.jokesData) {
+        j.isFavorite = false;
+      }
+
+      // Set the selected joke
+      joke.isFavorite = true;
+      isSelectedFavorite = joke;
+    });
   }
 
   @override
@@ -29,8 +56,13 @@ class Exercise4 extends StatelessWidget {
 }
 
 class FavoriteCard extends StatefulWidget {
-  JokesModel joke;
-  FavoriteCard({super.key, required this.joke});
+  final JokesModel joke;
+  final VoidCallback onFavoriteSelected;
+  const FavoriteCard({
+    super.key,
+    required this.joke,
+    required this.onFavoriteSelected,
+  });
 
   @override
   State<FavoriteCard> createState() => _FavoriteCardState();
@@ -71,7 +103,7 @@ class _FavoriteCardState extends State<FavoriteCard> {
             ),
           ),
           IconButton(
-            onPressed: onFavoriteClick,
+            onPressed: widget.onFavoriteSelected,
             icon: Icon(
               widget.joke.isFavorite ? Icons.favorite : Icons.favorite_border,
               color: widget.joke.isFavorite ? Colors.red : Colors.grey,
